@@ -7,7 +7,12 @@ module Shapes ( Point2
               , nudgy
               ) where
 
-    data Point2 = Point2 Float Float deriving (Show, Eq)
+    data Point2 = Point2 Float Float deriving (Eq)
+
+    instance Show Point2 where
+        show (Point2 x y) = "mkPoint2 " <> show x <> " " <> show y 
+
+
     data Shape2 = Circle Point2 Float
                 | Rect Point2 Point2
                 deriving (Eq)
