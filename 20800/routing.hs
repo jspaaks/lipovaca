@@ -1,6 +1,13 @@
 module Main (main) where
 
-    data Section = Section Int Int Int deriving (Show)
+    import System.Environment ( getArgs
+                              , getProgName
+                              )
+
+    import System.IO ( readFile
+                     )
+
+    data Section = Section Int Int Int deriving (Read, Show)
 
     data Road = A | B deriving (Show)
 
@@ -19,14 +26,28 @@ module Main (main) where
                            } deriving (Show)
 
 
-    main = steps $ selectQuickest $ accumulate $ subRouteChoices heathrowToLondon
+    main = do
+        program <- getProgName
+        args <- getArgs
+        if null args
+            then do
+                putStrLn $ "Usage: " <> program <> " FILENAME"
+                putStrLn "   Print optimal route given a system of two parallel roads."
+            else do
+                let filename = head args
+                contents <- readFile filename
 
-    heathrowToLondon :: [Section]
-    heathrowToLondon = [ Section 50 10 30
-                       , Section 5 90 20
-                       , Section 40 2 25
-                       , Section 10 8 0
-                       ]
+                let (route, duration) = selectQuickest $ accumulate $ subRouteChoices network
+
+                    network = mkSection $ map read $ lines contents
+
+                    mkSection :: [Int] -> [Section]
+                    mkSection [] = []
+                    mkSection (a:b:c:rest) = Section a b c : mkSection rest
+                    mkSection _ = error "Expected input length to be a multiple of 3, aborting."
+
+                printSteps route
+                putStrLn $ "This route takes " <> show duration <> " minutes."
 
 
     subRouteChoices :: [Section] -> [Choices]
@@ -66,8 +87,8 @@ module Main (main) where
         | da > db = (rb,db)
 
 
-    steps :: (Route, Duration) -> IO ()
-    steps (route,duration) = putStr $ unlines $ zipWith f as bs where
+    printSteps :: Route -> IO ()
+    printSteps route = putStr $ unlines $ zipWith f as bs where
         f a b = show a <> ". " <> b
         as = [1..]
         bs = map show route
