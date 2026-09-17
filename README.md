@@ -1,4 +1,4 @@
-# lipovava
+# lipovaca
 
 Notes and projects from Miran Lipovača's book _Learn you a Haskell for great good!_.
 
